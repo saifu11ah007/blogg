@@ -19,7 +19,7 @@ function setupLogin(app) {
   app.use(express.static("public"));
   app.set('views', path.join(__dirname, 'views'));
   app.set('view engine', 'ejs');
-
+  app.get('/favicon.ico', (req, res) => res.status(204).end());
   app.use(session({
     secret: 'your_secret_key',
     resave: false,

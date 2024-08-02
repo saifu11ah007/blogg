@@ -15,7 +15,7 @@ mongoose.connect('mongodb+srv://saifullah22044:Test123@cluster0.svl6zpm.mongodb.
 // Setup login and blog routes
 setupLogin(app);
 setupBlog(app);
-
+app.get('/favicon.ico', (req, res) => res.status(204).end());
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

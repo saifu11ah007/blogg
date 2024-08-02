@@ -11,6 +11,7 @@ const { type } = require("os");
 const app = express();
 
 function setupBlog(app) {
+
   // Define the schema with an isPublic field
   const listSchema = new mongoose.Schema({
     name: String,
@@ -69,6 +70,7 @@ function setupBlog(app) {
   app.use(express.static(path.join(__dirname, 'public')));
   app.set('views', path.join(__dirname, 'views'));
   app.set('view engine', 'ejs');
+  app.get('/favicon.ico', (req, res) => res.status(204).end());
 
   const today = new Date();
   const day = today.getDate();
