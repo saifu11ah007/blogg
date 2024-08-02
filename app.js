@@ -5,9 +5,12 @@ const setupLogin = require('./login');
 const setupBlog = require('./blog');
 
 // Setup mongoose connection
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect('mongodb+srv://saifullah22044:Test123@cluster0.svl6zpm.mongodb.net/blog_and_logins', { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('Could not connect to MongoDB:', err));
+  .catch(err => {
+    console.error('Could not connect to MongoDB:', err);
+    process.exit(1);  // Exit process if connection fails
+  });
 
 // Setup login and blog routes
 setupLogin(app);
