@@ -13,7 +13,11 @@ mongoose.connect('mongodb+srv://saifullah22044:Test123@cluster0.svl6zpm.mongodb.
 // Setup login and blog routes
 setupLogin(app);
 setupBlog(app);
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+});
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
 });
