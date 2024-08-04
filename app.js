@@ -1,5 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const serverless=require('serverless-http');
+
 const app = express();
 const setupLogin = require('./login');
 const setupBlog = require('./blog');
@@ -21,5 +23,7 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
+const port = process.env.PORT || 3000;
 
-module.exports = app;  // Export the app for Vercel
+
+module.exports.handler = serverless(app);
