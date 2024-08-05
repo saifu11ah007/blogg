@@ -5,7 +5,6 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const _ = require("lodash");
 const sanitizeHtml = require('sanitize-html'); // Import sanitize-html
-const multer = require('multer');
 const { type } = require("os");
 
 const app = express();
@@ -34,13 +33,7 @@ function setupBlog(app) {
 
   // Create the Blog model
   const Blog = mongoose.models.Blog || mongoose.model('Blog', listSchema);
-  const Storage = multer.diskStorage({
-    destination: 'upload',
-    filename: (req, file, cb) => {
-      cb(null, file.originalname)
-    }
-  });
-  const upload = multer({ storage: Storage }).single('testImage');
+
   const commentSchema = new mongoose.Schema({
     author: String,
     comment: String
