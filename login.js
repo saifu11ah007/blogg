@@ -12,14 +12,14 @@ const findOrCreate = require('mongoose-findorcreate');
 const MongoStore = require('connect-mongo'); // Import connect-mongo
 
 function setupLogin(app) {
-
+  
   // Setup middleware
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(express.static(path.join(__dirname, '../public')));
 
-  // Set up view engine and views directory
-  app.set('views', path.join(__dirname, '../views'));
+// Set up view engine and views directory
+app.set('views', path.join(__dirname, '../views'));
   app.set('view engine', 'ejs');
   app.get('/favicon.ico', (req, res) => res.status(204).end());
   app.use(session({
@@ -51,7 +51,7 @@ function setupLogin(app) {
   userSchema.plugin(passportLocalMongoose);
   userSchema.plugin(findOrCreate);
   const User = mongoose.models.User || mongoose.model('User', userSchema);
-
+  
 
   passport.use(User.createStrategy());
   passport.serializeUser(function (user, done) {
@@ -66,11 +66,11 @@ function setupLogin(app) {
       done(err, null);
     }
   });
-// http://localhost:3000
+
   passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: "https://mainblog-black.vercel.app/auth/google/secrets",
+    callbackURL: "http://localhost:3000/auth/google/secrets",
     userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
   },
     function (accessToken, refreshToken, profile, cb) {
@@ -197,7 +197,7 @@ function setupLogin(app) {
       }
     });
   });
-
+  
 }
 
 module.exports = setupLogin;
