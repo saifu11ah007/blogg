@@ -1,7 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const serverless = require('serverless-http');
-
+const path = require('path');
+const bodyParser = require("body-parser");
 const app = express();
 const setupLogin = require('../login'); // Adjusted path
 const setupBlog = require('../blog');   // Adjusted path
