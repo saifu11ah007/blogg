@@ -48,7 +48,7 @@ function setupLogin(app) {
 
   userSchema.plugin(passportLocalMongoose);
   userSchema.plugin(findOrCreate);
-  const User = mongoose.model("User", userSchema);
+  const User = mongoose.models.User || mongoose.model('User', userSchema);
   
 
   passport.use(User.createStrategy());

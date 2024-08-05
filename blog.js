@@ -33,7 +33,7 @@ function setupBlog(app) {
   });
 
   // Create the Blog model
-  const Blog = mongoose.model("Blog", listSchema);
+  const Blog = mongoose.models.Blog || mongoose.model('Blog', listSchema);
   const Storage = multer.diskStorage({
     destination: 'upload',
     filename: (req, file, cb) => {
@@ -45,7 +45,7 @@ function setupBlog(app) {
     author: String,
     comment: String
   });
-  const Comment = mongoose.model("Comment", commentSchema);
+  const Comment = mongoose.models.Comment || mongoose.model('Comment', commentSchema);
 
   // Sample default item
   const defaultItems = [];

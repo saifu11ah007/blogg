@@ -25,7 +25,10 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  next();
+});
 
-const port = process.env.PORT || 3000;
-
+module.exports = app;
 module.exports.handler = serverless(app);
