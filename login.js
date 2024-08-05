@@ -12,11 +12,13 @@ const findOrCreate = require('mongoose-findorcreate');
 const MongoStore = require('connect-mongo'); // Import connect-mongo
 
 function setupLogin(app) {
-  
+
   // Setup middleware
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(express.static(path.join(__dirname, '../public')));
+
+  // Set up view engine and views directory
   app.set('views', path.join(__dirname, '../views'));
   app.set('view engine', 'ejs');
   app.get('/favicon.ico', (req, res) => res.status(204).end());
@@ -49,7 +51,7 @@ function setupLogin(app) {
   userSchema.plugin(passportLocalMongoose);
   userSchema.plugin(findOrCreate);
   const User = mongoose.models.User || mongoose.model('User', userSchema);
-  
+
 
   passport.use(User.createStrategy());
   passport.serializeUser(function (user, done) {
@@ -195,7 +197,7 @@ function setupLogin(app) {
       }
     });
   });
-  
+
 }
 
 module.exports = setupLogin;
