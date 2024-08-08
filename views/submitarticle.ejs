@@ -1,6 +1,7 @@
 <%- include('partials/form-header') %>
 <%- include('nav') %>
 
+
 <div class="formbold-main-wrapper">
   <div class="formbold-form-wrapper">
     <form action="/submitarticle" method="POST">
@@ -18,7 +19,8 @@
       <div class="formbold-input-flex">
         <div>
           <label for="phone" class="formbold-form-label">Title</label>
-          <input type="text" name="blogTitle" id="phone" placeholder="Title of Your Article" class="formbold-form-input" />
+          <input type="text" name="blogTitle" id="phone" placeholder="Title of Your Article"
+            class="formbold-form-input" />
         </div>
       </div>
 
@@ -46,38 +48,15 @@
 
       <div>
         <label for="message" class="formbold-form-label">Write Your Content</label>
-        <!-- Formatting Buttons -->
-        <button type="button" class="editor-button" onclick="formatText('bold')"><strong>B</strong></button>
-        <button type="button" class="editor-button" onclick="formatText('italic')"><em>I</em></button>
-        <button type="button" class="editor-button" onclick="formatText('insertParagraph')">P</button>
-        <button type="button" class="editor-button" onclick="formatText('insertUnorderedList')">•</button>
-        <!-- Contenteditable Div -->
-        <div id="editor" contenteditable="true" class="editor-content"></div>
-        <!-- Hidden Textarea -->
-        <textarea name="content" id="message" class="formbold-form-input" style="display:none;"></textarea>
+        <textarea name="content" id="message" class="formbold-form-input" style="display:none;" rows="10" cols="12"></textarea>
+        <script>
+          CKEDITOR.replace( 'content' );
+  </script>
       </div>
 
       <button class="formbold-btn" type="submit" name="button">Submit</button>
     </form>
   </div>
 </div>
-
-<script>
-  // Function to format text using execCommand
-  function formatText(command) {
-      document.execCommand(command, false, null);
-      syncContent();
-  }
-
-  // Sync content from editor to textarea
-  function syncContent() {
-      const editor = document.getElementById('editor');
-      const textarea = document.getElementById('message');
-      textarea.value = editor.innerHTML;
-  }
-
-  // Sync content before form submission
-  document.querySelector('form').addEventListener('submit', syncContent);
-</script>
 
 <%- include('partials/footer') %>

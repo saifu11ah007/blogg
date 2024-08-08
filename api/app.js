@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const serverless = require('serverless-http');
@@ -34,6 +35,11 @@ app.use((req, res, next) => {
   console.log(`Incoming request: ${req.method} ${req.url}`);
   next();
 });
-
+// const PORT = 3000;
+ 
+// app.listen(PORT, function(err){
+//     if (err) console.log("Error in server setup")
+//     console.log("Server listening on Port", PORT);
+// })
 module.exports = app;
 module.exports.handler = serverless(app);
