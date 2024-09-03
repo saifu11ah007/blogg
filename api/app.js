@@ -11,7 +11,7 @@ const setupBlog = require('../blog');   // Adjusted path
 // Setup mongoose connection
 // mongodb://localhost:27017
 // mongodb+srv://saifullah22044:Test123@cluster0.svl6zpm.mongodb.net
-mongoose.connect('mongodb://localhost:27017/blog_and_logins')
+mongoose.connect('mongodb+srv://saifullah22044:Test123@cluster0.svl6zpm.mongodb.net/blog_and_logins')
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => {
     console.error('Could not connect to MongoDB:', err);
