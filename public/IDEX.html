@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- basic -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- mobile metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+  <!-- site metas -->
+  <title>Bloscot</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <!-- bootstrap css -->
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+  <!-- style css -->
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <!-- Responsive-->
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/comment.css">
+  <!-- fevicon -->
+  <link rel="icon" href="images/fevicon.png" type="image/gif" />
+  <!-- Scrollbar Custom CSS -->
+  <link rel="stylesheet" href="css/jquery.mCustomScrollbar.min.css">
+  <!-- Tweaks for older IEs-->
+  <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+  <!-- owl stylesheets -->
+  <link rel="stylesheet" href="css/owl.carousel.min.css">
+  <link rel="stylesheet" href="css/owl.theme.default.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" media="screen">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/custom.css">
+  <style>
+    /* Flexbox layout for the main container */
+    .main-container {
+      display: flex;
+      padding: 20px;
+    }
+
+    /* Flexbox layout for the cards and sidebar */
+    .cards-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px; /* Adjust gap between cards */
+      flex: 1; /* Take remaining space */
+    }
+
+    .sidebar {
+      width: 200px; /* Adjust width as needed */
+      padding: 20px;
+      background-color: #f8f9fa; /* Light background for the sidebar */
+    }
+
+    .card {
+      padding: 10px;
+      max-width: 260px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      background-color: rgb(255, 255, 255);
+      font-family: sans-serif;
+    }
+
+    .content {
+      margin-top: 1rem;
+    }
+
+    .content .header {
+      margin-top: 0.5rem;
+    }
+
+    .image {
+      width: 100%;
+      height: 150px;
+      border-radius: 4px;
+      background-color: rgb(205, 235, 255);
+      padding: 9px;
+    }
+
+    .tag {
+      text-transform: capitalize;
+      background-color: rgba(0, 0, 0, 0.425);
+      padding: 2px 8px;
+      border-radius: 4px;
+      color: #fff;
+    }
+
+    .date {
+      display: flex;
+      font-size: 0.75rem;
+      line-height: 1rem;
+      align-items: center;
+      margin: 2px;
+    }
+
+    .title {
+      display: block;
+      font-size: 1.25rem;
+      line-height: 1.35rem;
+      font-weight: 600;
+      padding-bottom: 5px;
+      padding-top: 14px;
+    }
+
+    .description {
+      line-height: 1.375;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid header_main">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
+      <a class="logo" href="/"><img src="images/logo.png" alt="Logo"></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <!-- Tag buttons for filtering articles -->
+          <li class="nav-item">
+            <button class="tag-button btn btn-link" data-tag="">All</button>
+          </li>
+          <li class="nav-item">
+            <button class="tag-button btn btn-link" data-tag="Technology">Technology</button>
+          </li>
+          <li class="nav-item">
+            <button class="tag-button btn btn-link" data-tag="Sports">Sports</button>
+          </li>
+          <li class="nav-item">
+            <button class="tag-button btn btn-link" data-tag="Science">Science</button>
+          </li>
+          <!-- Add more tags as needed -->
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <div class="main-container">
+    <div class="cards-container">
+      <% Titles.forEach(function(item, index) { %>
+      <div class="card">
+        <div class="header">
+          <div class="image">
+            <span class="tag">Art</span>
+          </div>
+          <div class="date">
+            <span>6 min ago</span>
+          </div>
+        </div>
+        <div class="info">
+          <a rel="noopener noreferrer" href="#" class="block">
+            <span class="title"><%= item.name %></span>
+          </a>
+          <p class="description"><%= item.content.substring(0, 50) + "..." %></p>
+        </div>
+        <form action="/read" method="POST">
+          <div class="read_bt"><a id="readmore" href="/<%=item.name%>">
+              Read More</a></div>
+        </form>
+      </div>
+      <!-- Repeat the card element as needed -->
+    </div>
+
+    <aside class="sidebar">
+      <h4>Tags</h4>
+      <ul>
+        <li><a href="#">Art</a></li>
+        <li><a href="#">Technology</a></li>
+        <li><a href="#">Sports</a></li>
+        <li><a href="#">Science</a></li>
+        <!-- Add more tags as needed -->
+      </ul>
+    </aside>
+  </div>
+
+  <script>
+    // Add event listeners to all tag buttons
+    document.querySelectorAll('.tag-button').forEach(button => {
+      button.addEventListener('click', function () {
+        const tag = this.getAttribute('data-tag');
+        // Redirect to the /blog route with the selected tag as a query parameter
+        if (tag) {
+          window.location.href = `/blog?tag=${tag}`;
+        } else {
+          window.location.href = '/blog'; // Show all articles if 'All' is selected
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

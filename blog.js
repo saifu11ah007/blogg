@@ -6,33 +6,12 @@ const cors = require("cors");
 const _ = require("lodash");
 const sanitizeHtml = require('sanitize-html'); // Import sanitize-html
 const { type } = require("os");
-
+const striptags = require('striptags');
+const Blog = require('./blogmodels'); 
 const app = express();
 
 function setupBlog(app) {
 
-  // Define the schema with an isPublic field
-  const listSchema = new mongoose.Schema({
-    name: String,
-    content: String,
-    isPublic: Boolean,
-    author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    image: {
-      data: Buffer,
-      content: String
-    }, // Field to indicate visibility
-    comments: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Comment'
-    }],
-    likes: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    }]
-  });
-
-  // Create the Blog model
-  const Blog = mongoose.models.Blog || mongoose.model('Blog', listSchema);
 
   const commentSchema = new mongoose.Schema({
     author: String,
@@ -72,29 +51,56 @@ app.set('views', path.join(__dirname, '../views'));
   const month = today.getMonth() + 1; // Months are zero-based
   const year = today.getFullYear();
 
+  function renderWithAuthStatus(req, res, view, data = {}) {
+    res.render(view, { ...data, isAuthenticated: req.isAuthenticated() });
+  }
 
 
   app.get('/blog', function (req, res) {
-    Blog.find({ isPublic: true }) // Only retrieve public articles
-      .then(foundItems => {
-        if (foundItems.length === 0) {
-          Blog.insertMany(defaultItems)
-            .then(() => res.redirect("/blog"))
-            .catch(err => console.error(err));
-        } else {
-          res.render("article", {
-            Titles: foundItems,
-            Content: foundItems,
-            buttonTitle: foundItems,
-            date: day,
-            month: month,
-            years: year
+    const tagFilter = req.query.tag ? { tags: req.query.tag, isPublic: true } : { isPublic: true };
+  
+    Blog.find({})
+      .sort({ likes: -1 })
+      .limit(5)
+      .then((topLikedArticles) => {
+        Blog.find({})
+          .sort({ views: -1 })
+          .limit(5)
+          .then((topViewedArticles) => {
+            Blog.find(tagFilter)
+              .then(foundItems => {
+                // Strip HTML tags from the article content for the summary
+                foundItems.forEach(item => {
+                  item.content = sanitizeHtml(item.content, {
+                    allowedTags: [], // Remove all HTML tags
+                    allowedAttributes: {}
+                  });
+                });
+  
+                res.render("article", {
+                  Titles: foundItems,
+                  topLikedArticles,
+                  topViewedArticles,
+                  date: day,
+                  month: month,
+                  years: year,
+                  isAuthenticated: req.isAuthenticated()
+                });
+              })
+              .catch(err => console.error(err));
+          })
+          .catch(err => {
+            console.error("Error fetching top viewed articles:", err);
+            res.status(500).send("Internal server error");
           });
-        }
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error("Error fetching top liked articles:", err);
+        res.status(500).send("Internal server error");
+      });
   });
-
+  
+  
   app.get('/all-blogs', function (req, res) {
     Blog.find({})
       .then(blogs => {
@@ -107,15 +113,20 @@ app.set('views', path.join(__dirname, '../views'));
       });
   });
 
-  function renderWithAuthStatus(req, res, view, data = {}) {
-    res.render(view, { ...data, isAuthenticated: req.isAuthenticated() });
-  }
-
+  
   app.get("/viewingarticles", function (req, res) {
     if (req.isAuthenticated()) {
       Blog.find({ author: req.user._id })
         .then(articles => {
-          renderWithAuthStatus(req, res, "viewingarticles", { articles });
+          // Strip HTML tags from article content
+          const sanitizedArticles = articles.map(article => {
+            return {
+              ...article._doc,
+              content: striptags(article.content)
+            };
+          });
+  
+          renderWithAuthStatus(req, res, "viewingarticles", { articles: sanitizedArticles, isAuthenticated: req.isAuthenticated() });
         })
         .catch(err => console.error(err));
     } else {
@@ -126,8 +137,12 @@ app.set('views', path.join(__dirname, '../views'));
   app.get("/:postName", function (req, res) {
     const requestedTitle = req.params.postName;
     console.log("Requested Title:", requestedTitle);
-
-    Blog.findOne({ name: { $regex: new RegExp(`^${requestedTitle}$`, 'i') } }).populate('comments') // Case-insensitive search
+  
+    Blog.findOneAndUpdate(
+      { name: { $regex: new RegExp(`^${requestedTitle}$`, 'i') } },
+      { $inc: { views: 1 } }, // Increment the view count by 1
+      { new: true } // Return the updated document
+    ).populate('comments')
       .then(item => {
         if (item) {
           console.log("Article Found:", item);
@@ -136,22 +151,52 @@ app.set('views', path.join(__dirname, '../views'));
             date: day,
             month: month,
             years: year,
+            isAuthenticated: req.isAuthenticated() 
           });
-        } else {
-          console.log("Post not found");
-          res.status(404).send("Post not found");
         }
+        // else {
+        //   console.log("Post not found");
+        //   res.status(404).send("Post not found");
+        // }
       })
       .catch(err => {
         console.error("Error finding post:", err);
         res.status(500).send("Internal server error");
       });
   });
+  app.get("/", (req, res) => {
+    // Fetch top 5 most liked articles
+    Blog.find({})
+      .sort({ likes: -1 })
+      .limit(5)
+      .then((topLikedArticles) => {
+        // Fetch top 5 most viewed articles
+        Blog.find({})
+          .sort({ views: -1 })
+          .limit(5)
+          .then((topViewedArticles) => {
+            // Render the home page with the top articles and auth status
+            renderWithAuthStatus(req, res, "home", {
+              topLikedArticles,
+              topViewedArticles,
+            });
+          })
+          .catch((err) => {
+            console.error("Error fetching top viewed articles:", err);
+            res.status(500).send("Internal server error");
+          });
+      })
+      .catch((err) => {
+        console.error("Error fetching top liked articles:", err);
+        res.status(500).send("Internal server error");
+      });
+  });
 
+  
 
   app.post('/submitarticle', function (req, res) {
     const itemName = req.body.blogTitle;
-
+  
     // Sanitize the content before saving it to the database
     const sanitizedContent = sanitizeHtml(req.body.content, {
       allowedTags: ['b', 'i', 'em', 'strong', 'a', 'p', 'ul', 'ol', 'li'],
@@ -159,22 +204,26 @@ app.set('views', path.join(__dirname, '../views'));
         'a': ['href']
       }
     });
-
+  
     const visibility = req.body.visibility;
-    console.log(sanitizedContent);
-
     const isPublic = visibility === "public";
+    const tags = req.body.tags || []; // Capture the selected tags
+  
     const item = new Blog({
       name: itemName,
-      content: sanitizedContent, // Use sanitized content
+      content: sanitizedContent,
       isPublic: isPublic,
-      author: req.user._id
+      author: req.user._id,
+      tags: Array.isArray(tags) ? tags.slice(0, 3) : [tags] // Ensure tags are stored as an array, max 3
     });
-
+  
     item.save()
       .then(() => res.redirect("/blog"))
       .catch(err => console.error(err));
   });
+  
+  
+  
   app.post("/blog/:id/comments", function (req, res) {
     if (req.isAuthenticated()) {
       const user = req.user;
@@ -203,6 +252,10 @@ app.set('views', path.join(__dirname, '../views'));
     }
     else { res.redirect("/login"); }
   });
+  app.get('/roots', function(req, res) {
+    res.send('This is a new route.');
+    console.log("root");
+  });
   app.post("/like", function (req, res) {
     if (req.isAuthenticated()) {
       Blog.findByIdAndUpdate(
@@ -220,7 +273,7 @@ app.set('views', path.join(__dirname, '../views'));
         });
     } else { res.redirect("/login"); }
   });
-
+  
   app.post("/unlike", function (req, res) {
     if (req.isAuthenticated()) {
       Blog.findByIdAndUpdate(
@@ -238,6 +291,7 @@ app.set('views', path.join(__dirname, '../views'));
         });
     } else { res.redirect("/login"); }
   });
+  
 
 }
 

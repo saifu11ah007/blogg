@@ -1,0 +1,66 @@
+/* Container for articles */
+.articles-container {
+  margin: 2rem auto;
+  max-width: 1200px;
+}
+
+/* Grid layout for articles */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+/* Article card styles */
+.article-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.75rem;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.article-image {
+  height: 10rem;
+  background-color: #4a90e2; /* Placeholder color */
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.article-content {
+  padding: 1.5rem;
+}
+
+.article-title {
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.article-description {
+  font-size: 1rem;
+  color: #4a5568;
+}
+
+.article-footer {
+  padding: 1rem;
+}
+
+.read-more-button {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #ffffff;
+  background-color: #3182ce;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.read-more-button:hover {
+  background-color: #2b6cb0;
+}

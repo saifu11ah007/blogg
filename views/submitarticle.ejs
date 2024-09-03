@@ -1,10 +1,11 @@
 <%- include('partials/form-header') %>
 <%- include('nav') %>
 
-
 <div class="formbold-main-wrapper">
   <div class="formbold-form-wrapper">
     <form action="/submitarticle" method="POST">
+      <!-- Existing form fields -->
+
       <div class="formbold-input-flex">
         <div>
           <label for="firstname" class="formbold-form-label">First name</label>
@@ -18,15 +19,14 @@
 
       <div class="formbold-input-flex">
         <div>
-          <label for="phone" class="formbold-form-label">Title</label>
-          <input type="text" name="blogTitle" id="phone" placeholder="Title of Your Article"
+          <label for="blogTitle" class="formbold-form-label">Title</label>
+          <input type="text" name="blogTitle" id="blogTitle" placeholder="Title of Your Article"
             class="formbold-form-input" />
         </div>
       </div>
 
       <div class="formbold-input-radio-wrapper">
-        <label for="jobtitle" class="formbold-form-label">How do you want to Post?</label>
-
+        <label class="formbold-form-label">How do you want to Post?</label>
         <div class="formbold-radio-flex">
           <div class="formbold-radio-group">
             <label class="formbold-radio-label">
@@ -35,7 +35,6 @@
               <span class="formbold-radio-checkmark"></span>
             </label>
           </div>
-
           <div class="formbold-radio-group">
             <label class="formbold-radio-label">
               <input class="formbold-input-radio" type="radio" name="visibility" value="private" id="private">
@@ -50,9 +49,58 @@
         <label for="message" class="formbold-form-label">Write Your Content</label>
         <textarea name="content" id="message" class="formbold-form-input" style="display:none;" rows="10" cols="12"></textarea>
         <script>
-          CKEDITOR.replace( 'content' );
-  </script>
+          CKEDITOR.replace('content');
+        </script>
       </div>
+
+      <!-- New Tags Section -->
+      <div class="formbold-input-checkbox-wrapper">
+        <label class="formbold-form-label">Select Tags:</label>
+        <div class="formbold-checkbox-group">
+          <label class="formbold-checkbox-label">
+            <input type="checkbox" name="tags" value="Technology">
+            Technology
+            <span class="formbold-checkbox-checkmark"></span>
+          </label>
+          <label class="formbold-checkbox-label">
+            <input type="checkbox" name="tags" value="Sports">
+            Sports
+            <span class="formbold-checkbox-checkmark"></span>
+          </label>
+          <label class="formbold-checkbox-label">
+            <input type="checkbox" name="tags" value="Science">
+            Science
+            <span class="formbold-checkbox-checkmark"></span>
+          </label>
+          <label class="formbold-checkbox-label">
+            <input type="checkbox" name="tags" value="Art">
+            Art
+            <span class="formbold-checkbox-checkmark"></span>
+          </label>
+          <label class="formbold-checkbox-label">
+            <input type="checkbox" name="tags" value="Politics">
+            Politics
+            <span class="formbold-checkbox-checkmark"></span>
+          </label>
+          <label class="formbold-checkbox-label">
+            <input type="checkbox" name="tags" value="War">
+            War
+            <span class="formbold-checkbox-checkmark"></span>
+          </label>
+          <label class="formbold-checkbox-label">
+            <input type="checkbox" name="tags" value="Pakistan">
+            Pakistan
+            <span class="formbold-checkbox-checkmark"></span>
+          </label>
+          <label class="formbold-checkbox-label">
+            <input type="checkbox" name="tags" value="USA">
+            USA
+            <span class="formbold-checkbox-checkmark"></span>
+          </label>
+          <!-- Add more tags as needed -->
+        </div>
+      </div>
+      
 
       <button class="formbold-btn" type="submit" name="button">Submit</button>
     </form>

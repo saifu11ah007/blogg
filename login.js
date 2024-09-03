@@ -9,10 +9,11 @@ const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
+const striptags = require('striptags');
 const MongoStore = require('connect-mongo'); // Import connect-mongo
-
+const Blog = require('./blogmodels');
 function setupLogin(app) {
-
+  
   // Setup middleware
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
@@ -45,7 +46,8 @@ function setupLogin(app) {
     email: String,
     password: String,
     googleId: String,
-    name: String // Add this field to store the user's name
+    name: String, // Add this field to store the user's name
+    tags: [String]
   });
 
   userSchema.plugin(passportLocalMongoose);
@@ -111,10 +113,7 @@ function setupLogin(app) {
     res.send('This is a protected route');
   });
 
-  app.get("/", function (req, res) {
-    renderWithAuthStatus(req, res, "home");
-  });
-
+  
   app.get("/login", function (req, res) {
     renderWithAuthStatus(req, res, "login");
   });
@@ -136,7 +135,7 @@ function setupLogin(app) {
 
   app.get("/auth/google", passport.authenticate("google", { scope: ['profile'] }));
   app.get("/auth/google/secrets", passport.authenticate("google", { failureRedirect: "/login" }), function (req, res) {
-    res.redirect("/submitarticle"); // Change it to where you want to go
+    res.redirect("/"); // Change it to where you want to go
   });
 
   app.get("/submitarticle", function (req, res) {
@@ -146,6 +145,56 @@ function setupLogin(app) {
       res.redirect("/login");
     }
   });
+  app.get('/recommend', function (req, res) {
+    const userId = req.user.id; // Assuming `req.user` is populated after authentication
+
+    User.findById(userId).exec()
+        .then(function(user) {
+            if (!user) {
+                res.render('recommend', { 
+                    message: 'User not found', 
+                    blogs: [], 
+                    isAuthenticated: req.isAuthenticated() 
+                });
+            } else {
+                Blog.find({ tags: { $in: user.tags } }).exec()
+                    .then(function(blogs) {
+                        if (!blogs || blogs.length === 0) {
+                            res.render('recommend', { 
+                                message: 'No blogs available for your interests', 
+                                blogs: [], 
+                                isAuthenticated: req.isAuthenticated() 
+                            });
+                        } else {
+                            res.render('recommend', { 
+                                message: null, 
+                                blogs: blogs, 
+                                isAuthenticated: req.isAuthenticated() 
+                            });
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error('Error fetching blogs:', err);
+                        res.render('recommend', { 
+                            message: 'Server error', 
+                            blogs: [], 
+                            isAuthenticated: req.isAuthenticated() 
+                        });
+                    });
+            }
+        })
+        .catch(function(err) {
+            console.error('Error fetching user:', err);
+            res.render('recommend', { 
+                message: 'Server error', 
+                blogs: [], 
+                isAuthenticated: req.isAuthenticated() 
+            });
+        });
+});
+
+
+
 
   app.get("/account", function (req, res) {
     if (req.isAuthenticated()) {
@@ -164,12 +213,12 @@ function setupLogin(app) {
   app.post("/register", function (req, res) {
     const id = req.body.username;
     const pass = req.body.password;
-    const name = req.body.name; // Get the name from the request
-
-    User.register({ username: id, name: name }, pass) // Store the name during registration
+    const name = req.body.name; 
+  
+    User.register({ username: id, name: name }, pass) 
       .then((foundUser) => {
         passport.authenticate("local")(req, res, function () {
-          res.redirect("/submitarticle");
+          res.redirect("/select-tags");
         });
       })
       .catch(err => {
@@ -177,7 +226,7 @@ function setupLogin(app) {
         res.redirect("/register");
       });
   });
-
+  
   app.post("/login", function (req, res) {
     const id = req.body.username;
     const pass = req.body.password;
@@ -198,7 +247,47 @@ function setupLogin(app) {
       }
     });
   });
-
+  app.get("/select-tags", (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.redirect("/login");
+    }
+  
+    const availableTags = ["Technology", "Art", "Science", "Sport", "Politics", "War", "Pakistan", "USA"];
+    res.render("select-tags", { availableTags, error: null });
+  });
+  
+  
+  
+  app.post("/select-tags", (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.redirect("/login");
+    }
+  
+    const selectedTags = req.body.tags;
+  
+    // Ensure selectedTags is always an array, even if a single tag is selected
+    const selectedTagsArray = Array.isArray(selectedTags) ? selectedTags : [selectedTags];
+  
+    // Check if less than 3 tags are selected
+    if (!selectedTagsArray || selectedTagsArray.length < 3) {
+      return res.render("select-tags", {
+        availableTags: ["Technology", "Art", "Science", "Sport", "Politics", "War", "Pakistan", "USA"],
+        error: "Please select at least 3 tags."
+      });
+    }
+  
+    User.findById(req.user.id).then((user) => {
+      user.tags = selectedTagsArray;
+      return user.save();
+    }).then(() => {
+      res.redirect("/");
+    }).catch((err) => {
+      console.error(err);
+      res.redirect("/select-tags");
+    });
+  });
+  
+  
 }
 
 module.exports = setupLogin;
