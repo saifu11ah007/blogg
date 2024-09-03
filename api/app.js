@@ -38,7 +38,7 @@ app.use((req, res, next) => {
   next();
 });
 
-const PORT = 3000;
+const PORT = 3001;
  
 app.listen(PORT, function(err){
     if (err) console.log("Error in server setup")
